@@ -19,13 +19,6 @@ AI/Run CodeMie assistants and Workflows can be triggered using webhooks. It mean
 This functionality is only available to users with the [isAdmin](/user-guide/getting-started/glossary.md#jwt-attributes) role or [Project Admin](/user-guide/getting-started/glossary#project-admin) permissions. Platform Administrators and Project Admins have full access to create and manage Webhook integrations.
 :::
 
-:::note Multi-Worker and Multi-Pod Deployments
-If the platform runs with more than one worker (`WORKERS > 1`) or multiple pod replicas, the
-`INTERNAL_BIND_KEY` environment variable must be set to the same value across all workers and
-pods. Without it, each worker generates a random key — webhook requests routed between workers
-or pods will fail authentication.
-:::
-
 ## 1. Create Resource to Trigger
 
 1.1. Create an assistant you want to react to webhooks.
@@ -62,6 +55,15 @@ Make sure the **Is Enabled** toggle is turned ON. If disabled, the webhook will 
 
 - **Resource Type**: Choose the resource to be triggered when receiving the webhook (Assistant, Workflow, or Datasource).
 - **Resource ID**: Enter the ID of the Assistant/Workflow/Datasource copied from step 1.2.
+
+:::warning Datasource Type Restrictions
+Not all datasource types support webhook triggering. The following datasource types **cannot** be used as a webhook trigger target:
+
+- **File**
+- **SharePoint**
+
+If a datasource of one of these types is entered in the **Resource ID** field, the system displays a validation error and prevents saving the integration. Selecting a supported datasource type clears the error and allows the configuration to be saved.
+:::
 
 ![Webhook integration form](./images/webhook-integration-form.png)
 

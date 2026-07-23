@@ -15,36 +15,43 @@ Control which features, UI elements, and integrations are available to users in 
 
 Use this table to quickly find where each component appears in the UI.
 
-| Component ID                              | Where It Appears                                          | When Enabled Shows                                                 | When Disabled Hides                         | Notes                                     |
-| ----------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------- | ----------------------------------------- |
-| **CORE FEATURES**                         |                                                           |                                                                    |                                             |                                           |
-| `adminActions`                            | Settings → Administration                                 | Menu items: AI/Run Adoption, Categories, MCPs, Projects, Providers | Entire Administration menu                  |                                           |
-| `feedbackAssistant`                       | Help Center, Quick actions (top-right)                    | Feedback assistant card/button                                     | Feedback collection interface               |                                           |
-| `mcpConnect`                              | Assistant/Workflow config → Tools                         | "MCP Servers" option in dropdown                                   | MCP integration option                      |                                           |
-| `mcpCustomServersDisabled`                | Assistant/Workflow config → MCP Servers                   | Catalog-referenced and custom MCP servers                          | Possibility to configure custom MCP servers |                                           |
-| `skills`                                  | Navigation, Chat config, Assistant config                 | Skills menu, skill selector, management pages                      | Entire Skills subsystem                     | Major feature gate                        |
-| `aiAdoption`                              | Analytics page, Settings → Administration                 | Analytics dashboard with 4 dimensions                              | Analytics dashboard and config              | Enterprise Edition only                   |
-| `visualWorkflowEditor`                    | Workflow editor page                                      | Visual drag-and-drop editor (React Flow)                           | Visual editor (YAML only)                   |                                           |
-| `defaultConversationAssistant`            | New chat creation                                         | Pre-selects specified assistant                                    | Default behavior (no pre-selection)         | Requires `slug` parameter                 |
-| **DYNAMIC TOOLS (Chat Interface)**        |                                                           |                                                                    |                                             |                                           |
-| `features:webSearch`                      | Chat → Dynamic tools settings (gear icon)                 | "Web Search" toggle                                                | Web search option                           | If both disabled, entire section hidden   |
-| `features:dynamicCodeInterpreter`         | Chat → Dynamic tools settings (gear icon)                 | "Code Interpreter" toggle                                          | Code interpreter option                     | If both disabled, entire section hidden   |
-| **HELP CENTER LINKS**                     |                                                           |                                                                    |                                             |                                           |
-| `videoPortal`                             | Help Center → Learning Resources                          | Link card with "Open Guide" button                                 | Link card                                   |                                           |
-| `youtubeChannel`                          | Help Center → Learning Resources                          | YouTube channel link card                                          | Link card                                   |                                           |
-| `userGuide`                               | Help Center → Learning Resources                          | Documentation link card                                            | Link card                                   |                                           |
-| `userSurvey`                              | Help Center → Learning Resources                          | Survey form link card                                              | Link card                                   |                                           |
-| **CONTEXTUAL HELP (Conditional Display)** |                                                           |                                                                    |                                             |                                           |
-| `helpLinks:assistants:creating`           | Create Assistant page (top-right)                         | Help documentation link                                            | No documentation link                       | Triggers: Page load                       |
-| `helpLinks:assistants:tools`              | Assistant config → Tools section                          | Help documentation link                                            | No documentation link                       | Triggers: User opens tools                |
-| `helpLinks:workflows:creating`            | Create Workflow page (top-right)                          | Help documentation link                                            | No documentation link                       | Triggers: Page load                       |
-| `helpLinks:workflows:configuration`       | Workflow editor → YAML tab                                | Help documentation link                                            | No documentation link                       | Triggers: User switches to YAML           |
-| `helpLinks:integrations:selection:<type>` | Integration creation form                                 | Help link for selected type                                        | No documentation link                       | Triggers: User selects type from dropdown |
-| `helpLinks:datasources:selection:<type>`  | Data source creation form                                 | Help link for selected type                                        | No documentation link                       | Triggers: User selects type from dropdown |
-| **INTEGRATED APPLICATIONS**               |                                                           |                                                                    |                                             |                                           |
-| `applications:<your-app-id>`              | Applications menu                                         | Application card with icon                                         | Application card                            | Type: `module`, `iframe`, or `link`       |
-| **PRECONFIGURED ASSISTANTS**              |                                                           |                                                                    |                                             |                                           |
-| Any assistant ID                          | Assistants list, New chat dropdown, Help Center → AI Help | Assistant appears in all locations                                 | Assistant hidden from all locations         | Default: enabled if not configured        |
+| Component ID                              | Where It Appears                                          | When Enabled Shows                                                 | When Disabled Hides                                                                 | Notes                                     |
+| ----------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------- | ----------------------------------------- |
+| **CORE FEATURES**                         |                                                           |                                                                    |                                                                                     |                                           |
+| `adminActions`                            | Settings → Administration                                 | Menu items: AI/Run Adoption, Categories, MCPs, Projects, Providers | Entire Administration menu                                                          |                                           |
+| `feedbackAssistant`                       | Help Center, Quick actions (top-right)                    | Feedback assistant card/button                                     | Feedback collection interface                                                       |                                           |
+| `mcpConnect`                              | Assistant/Workflow config → Tools                         | "MCP Servers" option in dropdown                                   | MCP integration option                                                              |                                           |
+| `mcpCustomServersDisabled`                | Assistant/Workflow config → MCP Servers                   | Catalog-referenced and custom MCP servers                          | Possibility to configure custom MCP servers                                         |                                           |
+| `skills`                                  | Navigation, Chat config, Assistant config                 | Skills menu, skill selector, management pages                      | Entire Skills subsystem                                                             | Major feature gate                        |
+| `aiAdoption`                              | Analytics page, Settings → Administration                 | Analytics dashboard with 4 dimensions                              | Analytics dashboard and config                                                      | Enterprise Edition only                   |
+| `visualWorkflowEditor`                    | Workflow editor page                                      | Visual drag-and-drop editor (React Flow)                           | Visual editor (YAML only)                                                           |                                           |
+| `defaultConversationAssistant`            | New chat creation                                         | Pre-selects specified assistant                                    | Default behavior (no pre-selection)                                                 | Requires `slug` parameter                 |
+| `features:personalLiteLLMIntegrations`    | Integrations → User tab                                   | LiteLLM as a personal integration option for regular users         | LiteLLM from personal integrations (only maintainers and administrators can manage) | Disabled by default                       |
+| **DYNAMIC TOOLS (Chat Interface)**        |                                                           |                                                                    |                                                                                     |                                           |
+| `features:webSearch`                      | Chat → Dynamic tools settings (gear icon)                 | "Web Search" toggle                                                | Web search option                                                                   | If both disabled, entire section hidden   |
+| `features:dynamicCodeInterpreter`         | Chat → Dynamic tools settings (gear icon)                 | "Code Interpreter" toggle                                          | Code interpreter option                                                             | If both disabled, entire section hidden   |
+| **HELP CENTER LINKS**                     |                                                           |                                                                    |                                                                                     |                                           |
+| `videoPortal`                             | Help Center → Learning Resources                          | Link card with "Open Guide" button                                 | Link card                                                                           |                                           |
+| `youtubeChannel`                          | Help Center → Learning Resources                          | YouTube channel link card                                          | Link card                                                                           |                                           |
+| `userGuide`                               | Help Center → Learning Resources                          | Documentation link card                                            | Link card                                                                           |                                           |
+| `userSurvey`                              | Help Center → Learning Resources                          | Survey form link card                                              | Link card                                                                           |                                           |
+| **CONTEXTUAL HELP (Conditional Display)** |                                                           |                                                                    |                                                                                     |                                           |
+| `helpLinks:assistants:creating`           | Create Assistant page (top-right)                         | Help documentation link                                            | No documentation link                                                               | Triggers: Page load                       |
+| `helpLinks:assistants:tools`              | Assistant config → Tools section                          | Help documentation link                                            | No documentation link                                                               | Triggers: User opens tools                |
+| `helpLinks:workflows:creating`            | Create Workflow page (top-right)                          | Help documentation link                                            | No documentation link                                                               | Triggers: Page load                       |
+| `helpLinks:workflows:configuration`       | Workflow editor → YAML tab                                | Help documentation link                                            | No documentation link                                                               | Triggers: User switches to YAML           |
+| `helpLinks:integrations:selection:<type>` | Integration creation form                                 | Help link for selected type                                        | No documentation link                                                               | Triggers: User selects type from dropdown |
+| `helpLinks:datasources:selection:<type>`  | Data source creation form                                 | Help link for selected type                                        | No documentation link                                                               | Triggers: User selects type from dropdown |
+| **ASSISTANT FEATURES**                    |                                                           |                                                                    |                                                                                     |                                           |
+| `features:favorites`                      | Assistants list, Skills list, Workflows list              | Favorite/Unfavorite action buttons                                 | Favorite actions hidden                                                             |                                           |
+| `features:pinnedAssistants`               | Assistants list, Navigation sidebar                       | Pin/Unpin actions and Pinned Assistants sidebar section            | Pin actions and sidebar section hidden                                              |                                           |
+| `features:favoritesPage`                  | Main navigation                                           | Favorites page and navigation link                                 | Favorites page and nav link hidden                                                  | Default: disabled                         |
+| **DATASOURCE FEATURES**                   |                                                           |                                                                    |                                                                                     |                                           |
+| `features:sharepointCodeMieOAuth`         | Data Sources → SharePoint setup form                      | "Sign in with Microsoft (CodeMie Project)" authentication option   | SharePoint PKCE auth option hidden                                                  | Requires `SHAREPOINT_PKCE_ENABLED=true`   |
+| **INTEGRATED APPLICATIONS**               |                                                           |                                                                    |                                                                                     |                                           |
+| `applications:<your-app-id>`              | Applications menu                                         | Application card with icon                                         | Application card                                                                    | Type: `module`, `iframe`, or `link`       |
+| **PRECONFIGURED ASSISTANTS**              |                                                           |                                                                    |                                                                                     |                                           |
+| Any assistant ID                          | Assistants list, New chat dropdown, Help Center → AI Help | Assistant appears in all locations                                 | Assistant hidden from all locations                                                 | Default: enabled if not configured        |
 
 ## Configuration Parameters
 
@@ -243,6 +250,16 @@ components:
   - id: "features:generatedAssistantIcons"
     settings:
       enabled: true
+
+  # WHERE: Integrations → User tab
+  # ENABLED: Regular users see LiteLLM as a personal integration option and can
+  #          create and manage their own LiteLLM credentials
+  # DISABLED: LiteLLM is unavailable in personal integrations; only maintainers
+  #           and administrators can manage LiteLLM integrations
+  # NOTE: Disabled by default; enable only when users should self-manage their LiteLLM keys
+  - id: "features:personalLiteLLMIntegrations"
+    settings:
+      enabled: true
 ```
 
 ### Advanced Features
@@ -304,6 +321,59 @@ components:
       enabled: true
       name: "Code Interpreter"
       description: "Enable Python code execution and data analysis capabilities"
+
+  # WHERE: Assistants list, Skills list, Workflows list
+  # ENABLED: Shows favorite/unfavorite action buttons on items
+  # DISABLED: Hides favorite actions
+  - id: "features:favorites"
+    settings:
+      enabled: true
+      name: "Favorites"
+      description: "Enable favorite/unfavorite actions for assistants, skills, and workflows"
+
+  # WHERE: Assistants list, Navigation sidebar
+  # ENABLED: Shows pin/unpin actions and Pinned Assistants section in sidebar
+  # DISABLED: Hides pin actions and pinned assistants sidebar section
+  - id: "features:pinnedAssistants"
+    settings:
+      enabled: true
+      name: "Pinned Assistants"
+      description: "Enable pin/unpin actions for assistants and the pinned assistants sidebar section"
+
+  # WHERE: Main navigation
+  # ENABLED: Shows dedicated Favorites page and its navigation link
+  # DISABLED: Hides Favorites page and navigation link
+  # NOTE: Disabled by default
+  - id: "features:favoritesPage"
+    settings:
+      enabled: false
+      name: "Favorites Page"
+      description: "Enable the dedicated Favorites page and its navigation link"
+
+  # WHERE: Data Sources → SharePoint setup form
+  # ENABLED: Shows "Sign in with Microsoft (CodeMie Project)" authentication option
+  # DISABLED: Hides SharePoint PKCE auth option
+  # NOTE: Requires SHAREPOINT_PKCE_ENABLED=true in API configuration
+  - id: "features:sharepointCodeMieOAuth"
+    settings:
+      enabled: true
+      name: "SharePoint CodeMie OAuth"
+      description: "Show Sign in with Microsoft (CodeMie Project) authentication option for SharePoint datasource"
+```
+
+### Datasource Features
+
+Controls authentication options available in the datasource setup UI.
+
+**Where it appears:** Data Sources → creation/edit form for the relevant datasource type
+
+**Fields used in this section:**
+
+```yaml
+settings:
+  enabled: true         # Required
+  name: "Display Name"  # Label shown in the UI
+  description: "..."    # Tooltip or helper text
 ```
 
 ### Integrated Applications
@@ -582,7 +652,7 @@ components:
       enabled: true
       availableForExternal: true
       name: "How to create MCP integration"
-      url: "https://docs.codemie.ai/user-guide/tools_integrations/tools/adding-an-mcp-server"
+      url: "https://docs.codemie.ai/user-guide/tools_integrations/tools/mcp/adding-an-mcp-server"
 
   - id: "helpLinks:integrations:selection:scheduler"
     settings:
@@ -926,6 +996,10 @@ extraObjects:
             settings:
               enabled: true
 
+          - id: "features:personalLiteLLMIntegrations"
+            settings:
+              enabled: true
+
           # Advanced Features
           - id: "skills"
             settings:
@@ -951,6 +1025,24 @@ extraObjects:
               enabled: true
               name: "Code Interpreter"
               description: "Enable Python code execution and data analysis capabilities"
+
+          - id: "features:favorites"
+            settings:
+              enabled: true
+              name: "Favorites"
+              description: "Enable favorite/unfavorite actions for assistants, skills, and workflows"
+
+          - id: "features:pinnedAssistants"
+            settings:
+              enabled: true
+              name: "Pinned Assistants"
+              description: "Enable pin/unpin actions for assistants and the pinned assistants sidebar section"
+
+          - id: "features:favoritesPage"
+            settings:
+              enabled: false
+              name: "Favorites Page"
+              description: "Enable the dedicated Favorites page and its navigation link"
 
           # Integrated Applications
           - id: "applications:angular-upgrade-app"
@@ -1169,7 +1261,7 @@ extraObjects:
               enabled: true
               availableForExternal: true
               name: "How to create MCP integration"
-              url: "https://docs.codemie.ai/user-guide/tools_integrations/tools/adding-an-mcp-server"
+              url: "https://docs.codemie.ai/user-guide/tools_integrations/tools/mcp/adding-an-mcp-server"
 
           - id: "helpLinks:integrations:selection:scheduler"
             settings:

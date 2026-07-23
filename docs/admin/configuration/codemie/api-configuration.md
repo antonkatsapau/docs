@@ -298,6 +298,21 @@ Configuration for Google Cloud Storage backend (requires `FILES_STORAGE_TYPE=gcp
 
 ---
 
+## Redis Configuration
+
+| Parameter                       | Type   | Default     | Description                                                                            |
+| ------------------------------- | ------ | ----------- | -------------------------------------------------------------------------------------- |
+| `REDIS_HOST`                    | string | `localhost` | Redis endpoint address                                                                 |
+| `REDIS_PORT`                    | int    | `6379`      | Remote port                                                                            |
+| `REDIS_PASSWORD`                | string | `""`        | Authentication secret for `default` user                                               |
+| `REDIS_DB`                      | int    | `0`         | Redis database ID                                                                      |
+| `REDIS_SSL`                     | bool   | `False`     | Enforce SSL connection to the remote endpoint                                          |
+| `REDIS_SSL_CERT_REQS`           | string | `none`      | Require valid certificates from endpoint. Valid values: `none`, `optional`, `required` |
+| `REDIS_CONNECT_TIMEOUT_SECONDS` | float  | `5.0`       | Connection timeout                                                                     |
+| `REDIS_TIMEOUT_SECONDS`         | float  | `5.0`       | Socket timeout for regular operations                                                  |
+
+---
+
 ## Security & Encryption
 
 ### Encryption Configuration
@@ -352,16 +367,6 @@ Encrypt data using Vault's Transit secrets engine for centralized key management
 | `VAULT_NAMESPACE`           | string | `""`        | Vault namespace for multi-tenant deployments              |
 | `VAULT_TRANSIT_KEY_NAME`    | string | `"codemie"` | Transit engine key name for encryption                    |
 | `VAULT_TRANSIT_MOUNT_POINT` | string | `"transit"` | Mount path for Transit secrets engine                     |
-
-### Inter-process Communication
-
-Authenticate inter-process requests between FastAPI workers and pods.
-
-| Parameter           | Type   | Default | Description                                                                                                                                                                                                                          |
-| ------------------- | ------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `INTERNAL_BIND_KEY` | string | random  | Shared secret for authenticating internal requests between workers and pods. Defaults to a random value per worker — set explicitly to the same value across all workers and pod replicas to ensure webhook triggers work correctly. |
-
----
 
 ## Identity & Access Management
 
@@ -451,6 +456,54 @@ Configure Git provider detection for repository indexing and code analysis.
 | `GITLAB_IDENTIFIERS`             | list[string] | `["gitlab"]`        | URL patterns identifying GitLab repositories       |
 | `BITBUCKET_IDENTIFIERS`          | list[string] | `["bitbucket"]`     | URL patterns identifying Bitbucket repositories    |
 | `AZURE_DEVOPS_REPOS_IDENTIFIERS` | list[string] | `["dev.azure.com"]` | URL patterns identifying Azure DevOps repositories |
+
+### SharePoint OAuth
+
+Enable delegated authentication for SharePoint datasources using Authorization Code + PKCE flow.
+
+| Parameter                    | Type    | Default                                                    | Description                                                                                                                                 |
+| ---------------------------- | ------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SHAREPOINT_PKCE_ENABLED`    | boolean | `false`                                                    | Enable Authorization Code + PKCE flow for SharePoint OAuth. Requires `SHAREPOINT_OAUTH_CLIENT_ID` and a matching Azure AD app registration. |
+| `SHAREPOINT_OAUTH_CLIENT_ID` | string  | `""`                                                       | Azure AD application (client) ID used for SharePoint OAuth authorization.                                                                   |
+| `SHAREPOINT_OAUTH_SCOPES`    | string  | `"Sites.Read.All Files.Read.All offline_access User.Read"` | Space-separated OAuth scopes requested during authorization.                                                                                |
+
+:::warning Redis Required
+SharePoint PKCE flow stores OAuth state and tokens in Redis during the authorization handshake. A running Redis instance must be configured (see [Redis Configuration](#redis-configuration)) before enabling `SHAREPOINT_PKCE_ENABLED`.
+:::
+
+:::info Azure AD Setup
+The redirect URI registered in your Azure AD app must match:
+
+```
+{CALLBACK_API_BASE_URL}{API_ROOT_PATH}/v1/sharepoint/oauth/callback
+```
+
+Use the **Web** platform type in Azure AD app registration. Also enable the customer feature flag `features:sharepointCodeMieOAuth` to show the "Sign in with Microsoft" button in the SharePoint datasource setup UI.
+:::
+
+### Google OAuth
+
+Enable delegated Google authentication for Google Docs datasources using Authorization Code + PKCE flow.
+
+| Parameter                    | Type   | Default | Description                                        |
+| ---------------------------- | ------ | ------- | -------------------------------------------------- |
+| `GOOGLE_OAUTH_CLIENT_ID`     | string | `""`    | OAuth 2.0 Client ID from Google Cloud Console.     |
+| `GOOGLE_OAUTH_CLIENT_SECRET` | string | `""`    | OAuth 2.0 Client Secret from Google Cloud Console. |
+
+:::warning Redis Required
+The Google OAuth flow stores PKCE state and tokens in Redis during the authorization handshake. A running Redis instance must be configured (see [Redis Configuration](#redis-configuration)) before enabling Google OAuth.
+:::
+
+:::info Google Cloud Console Setup
+
+1. Create an **OAuth 2.0 Client ID** (application type: **Web application**) in [Google Cloud Console](https://console.cloud.google.com/) under **APIs & Services → Credentials**.
+2. Register the following **Authorized Redirect URI**:
+   ```
+   {CALLBACK_API_BASE_URL}{API_ROOT_PATH}/v1/google-oauth/callback
+   ```
+   `CALLBACK_API_BASE_URL` is documented in [Callback Configuration](#callback-configuration). `API_ROOT_PATH` defaults to `/code-assistant-api` in Helm deployments.
+3. Enable these APIs under **APIs & Services → Library**: **Google Docs API**.
+   :::
 
 ---
 
@@ -706,7 +759,8 @@ Configure secure Python code execution in isolated Kubernetes pods for running u
 
 | Parameter                              | Type    | Default                          | Description                                                                                                                                                 |
 | -------------------------------------- | ------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `CODE_EXECUTOR_EXECUTION_MODE`         | string  | `"local"`                        | Execution mode: `sandbox` (isolated K8s pod, recommended for production), `local` (embedded kernel, less secure)                                            |
+| `CODE_EXECUTOR_ENABLED`                | boolean | `false`                          | Enable the Code Executor tool. When `false`, the tool is neither listed in the tools catalog nor executed. Set `true` to opt in.                            |
+| `CODE_EXECUTOR_EXECUTION_MODE`         | string  | `"sandbox"`                      | Execution mode. Code runs in an isolated Kubernetes sandbox pod.                                                                                            |
 | `CODE_EXECUTOR_KUBECONFIG_PATH`        | string  | `""`                             | Path to kubeconfig for Kubernetes authentication (optional, uses in-cluster config if empty). Set if you want to move code execution to a dedicated cluster |
 | `CODE_EXECUTOR_WORKDIR_BASE`           | string  | `"/home/codemie"`                | Base working directory for code execution inside containers                                                                                                 |
 | `CODE_EXECUTOR_NAMESPACE`              | string  | `"codemie-runtime"`              | Kubernetes namespace for executor pods                                                                                                                      |
@@ -723,14 +777,14 @@ Configure secure Python code execution in isolated Kubernetes pods for running u
 | `CODE_EXECUTOR_RUN_AS_USER`            | integer | `1001`                           | Unix user ID for pod security context (non-root execution)                                                                                                  |
 | `CODE_EXECUTOR_RUN_AS_GROUP`           | integer | `1001`                           | Unix group ID for pod security context                                                                                                                      |
 | `CODE_EXECUTOR_FS_GROUP`               | integer | `1001`                           | Filesystem group ID for pod volume permissions                                                                                                              |
-| `CODE_EXECUTOR_SECURITY_THRESHOLD`     | string  | `"LOW"`                          | Security policy: `SAFE` (permissive), `LOW`, `MEDIUM`, `HIGH` (restrictive)                                                                                 |
+| `CODE_EXECUTOR_SECURITY_THRESHOLD`     | string  | `"LOW"`                          | Required security policy threshold: `SAFE`, `LOW`, `MEDIUM`, `HIGH`                                                                                         |
 | `CODE_EXECUTOR_YAML_POLICY_PATH`       | string  | `""`                             | Path to custom YAML security policy file (optional, overrides default policy)                                                                               |
 | `CODE_EXECUTOR_VERBOSE`                | boolean | `false`                          | Enable verbose logging for executor debugging                                                                                                               |
 | `CODE_EXECUTOR_KEEP_TEMPLATE`          | boolean | `true`                           | Persist pod template after execution for performance optimization                                                                                           |
 | `CODE_EXECUTOR_SKIP_ENVIRONMENT_SETUP` | boolean | `false`                          | Skip environment initialization in sandbox (faster startup but may break dependencies)                                                                      |
 
 :::warning Security Considerations
-**Local Mode:** `CODE_EXECUTOR_EXECUTION_MODE=local` provides less isolation and security. Use `sandbox` mode in production where untrusted code execution is required.
+**Sandbox Isolation:** `CODE_EXECUTOR_EXECUTION_MODE=sandbox` runs user-supplied code in a dedicated Kubernetes pod, isolated from the CodeMie API. This is the execution model for running untrusted code safely in production.
 
 **Security Threshold:** The security policy controls what operations are allowed:
 
@@ -898,7 +952,7 @@ External applications that can access CodeMie APIs via JWT authentication are co
 ```yaml
 authorized_applications:
   - name: app-name # Application identifier
-    public_key_url: https://app.com/.well-known/public-key # JWT verification key URL
+    public_key_url: https://app.trusted.example/.well-known/public-key # JWT verification key URL, must use https and match an allowed domain
     # OR
     public_key_path: /path/to/public/key.pem # Local public key file
     allowed_resources: # Permitted resource types
@@ -917,10 +971,34 @@ Control granular access to CodeMie resources:
 - `USER` - User profile management
 - `PROJECT` - Project-level access
 
+### Public Key URL Domain Allowlist
+
+`public_key_url` values are validated against a domain allowlist before the key is fetched — once when the configuration loads (fails fast on startup) and again immediately before each fetch (defense in depth). This stops a tampered or misconfigured entry from pointing at an attacker-controlled host.
+
+| Parameter                             | Type          | Default | Description                                                                                                            |
+| ------------------------------------- | ------------- | ------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `AUTHORIZED_APPS_ALLOWED_KEY_DOMAINS` | list\[string] | `[]`    | Domains permitted to host `public_key_url` keys. A host matches if it equals a listed domain or is a subdomain of one. |
+
+Validation rules:
+
+- `public_key_url` must use `https`.
+- The URL host must not be an IP literal.
+- The URL host must equal, or be a subdomain of, one of the configured domains.
+- An empty allowlist (the default) rejects every URL-based key — only `public_key_path` (local file) entries are permitted until at least one domain is configured.
+
+Override with a JSON array via environment variable:
+
+```bash
+AUTHORIZED_APPS_ALLOWED_KEY_DOMAINS=["trusted.example","keys.trusted.example"]
+```
+
 ---
 
 ## See Also
 
-- [AWS Deployment Guide](../../deployment/aws/overview.md) - Complete AWS deployment walkthrough
-- [Azure Deployment Guide](../../deployment/azure/overview.md) - Azure-specific setup instructions
-- [GCP Deployment Guide](../../deployment/gcp/overview.md) - Google Cloud deployment steps
+- [AWS Kubernetes Deployment](../../deployment/aws/kubernetes/overview.md) - Complete AWS Kubernetes deployment walkthrough
+- [AWS On VM Deployment](../../deployment/aws/on-vm/overview.md) - AWS EC2 deployment with Docker Compose
+- [Azure Kubernetes Deployment](../../deployment/azure/kubernetes/overview.md) - Azure Kubernetes setup instructions
+- [Azure On VM Deployment](../../deployment/azure/on-vm/overview.md) - Azure VM deployment with Docker Compose
+- [GCP Kubernetes Deployment](../../deployment/gcp/kubernetes/overview.md) - Google Cloud Kubernetes deployment steps
+- [GCP On VM Deployment](../../deployment/gcp/on-vm/overview.md) - Google Cloud GCE deployment with Docker Compose

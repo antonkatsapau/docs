@@ -17,10 +17,12 @@ ignorePaths:
   - .vscode
   - cspell.config.yaml
   - CLAUDE.md
+  - scripts/
 
 # Custom dictionary - project-specific words that are correct
 words:
   # Project/Brand names
+  - HMAC
   - codemie
   - AI/Run
   - airun
@@ -60,6 +62,9 @@ words:
   - IRSA
   - rollouts
   # AWS
+  - AgentCore
+  - agentcore
+  - IMDS
   - EKS
   - S3
   - RDS
@@ -77,16 +82,21 @@ words:
   - NACLs
   - xlarge
   - AWSIRSA
+  - envsubst
+  - superadmin
   # GCP
   - GCP
   - GKE
+  - GCE
   - gcloud
   - gsutil
   - anthos
   - t1iylu
   - aiplatform
   - cloudkms
+  - secretmanager
   - Stackdriver
+  - highmem
   # Azure
   - AKS
   - Azure
@@ -115,6 +125,7 @@ words:
   - Keycloak
   - OIDC
   - OAuth
+  - PKCE
   - DaemonSet
   - ConfigMap
   - tfvars
@@ -235,6 +246,7 @@ words:
   # Google Drive
   - GDRIVE
   - gdrive
+  - googleoauth
   # codemie terms
   - kata
   - katas
@@ -250,10 +262,13 @@ words:
   - helpdesk
   - Jacoco
   - Mixtral
+  - Qwen
+  - Moonshot
   - onboarder
   - organisation
   - rescan
   - sandboxing
+  - sandboxed
   - spendings
   - summ
   - upskill
@@ -309,6 +324,8 @@ words:
   - mflens
   - APIURL
   - DEPLOYMENTNAME
+  - REQS
+
 # Ignore RegExp patterns (for things like URLs, version numbers, etc.)
 ignoreRegExpList:
   # Ignore Cyrillic characters (non-English content in FAQ files)

@@ -22,11 +22,12 @@ Navigate to the **Workflows** tab in the left sidebar:
 
 Workflows are organized into three main categories:
 
-| Category          | Description                                                         |
-| ----------------- | ------------------------------------------------------------------- |
-| **My Workflows**  | Your personal workflows that you own or manage                      |
-| **All Workflows** | A complete list of workflows available for you to use               |
-| **Templates**     | Ready-made templates for quickly creating and customizing workflows |
+| Category          | Description                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| **My Workflows**  | Your personal workflows that you own or manage                                     |
+| **All Workflows** | A complete list of workflows available for you to use                              |
+| **Templates**     | Ready-made templates for quickly creating and customizing workflows                |
+| **Marketplace**   | Globally published workflows discoverable and executable by any authenticated user |
 
 ![Workflow categories view](./images/workflows-overview/workflow-categories-view.png)
 
@@ -185,6 +186,8 @@ The standard way to launch a workflow with a dedicated execution interface.
 
    ![New Workflow Execution window](./images/workflows-overview/new-execution-window.png)
 
+   The prompt input field may display a hint set by the workflow creator to guide what input is expected.
+
 3. Click **Create** to initiate the execution.
 
 ### Monitoring Execution
@@ -206,6 +209,12 @@ During execution, you can:
 :::info
 The abort button is only available while the workflow is actively executing.
 :::
+
+## Marking Workflows as Favorites
+
+You can mark any workflow as a favorite for quick access. Click the **Favorite** button (star icon) on a workflow card to save it. All favorite workflows are available on the **Favorites** page in the left navigation panel, alongside favorite assistants and skills.
+
+See [Favorites](../assistants/favorites.md) for full details.
 
 ![Abort workflow button](./images/workflows-overview/execution-abort-button.png)
 

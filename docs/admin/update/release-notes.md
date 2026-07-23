@@ -13,8 +13,344 @@ This page provides information about updated third-party components and configur
 
 ---
 
+### CodeMie 2.40.0 {#v2-40-0}
+
 <details>
-<summary><strong>CodeMie 2.29.0</strong></summary>
+<summary>Release details</summary>
+
+**Release Date:** July 20, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.40.0)
+
+<h3>Third-Party Component Updates</h3>
+
+No third-party component updates in this release.
+
+<h3>Configuration Changes</h3>
+
+No breaking configuration changes were introduced in this release.
+
+</details>
+
+### CodeMie 2.39.0 {#v2-39-0}
+
+<details>
+<summary>Release details</summary>
+
+**Release Date:** July 14, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.39.0)
+
+<h3>Third-Party Component Updates</h3>
+
+No third-party component updates in this release.
+
+<h3>Configuration Changes</h3>
+
+No breaking configuration changes were introduced in this release.
+
+<h3>Hotfixes</h3>
+
+- **2.39.1** · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.39.1) – July 2, 2026
+
+</details>
+
+### CodeMie 2.38.0 {#v2-38-0}
+
+<details>
+<summary>Release details</summary>
+
+**Release Date:** July 9, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.38.0)
+
+<h3>Third-Party Component Updates</h3>
+
+No third-party component updates in this release.
+
+<h3>Configuration Changes</h3>
+
+1. **Google OAuth credentials required for Google Docs datasources** — Google Docs indexing now authenticates via per-user Google OAuth instead of a shared service account. Three new environment variables must be set before Google Docs datasources can be created:
+
+   | Variable                     | Description                                                                                                                                 |
+   | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+   | `GOOGLE_OAUTH_CLIENT_ID`     | OAuth 2.0 Client ID from Google Cloud Console                                                                                               |
+   | `GOOGLE_OAUTH_CLIENT_SECRET` | OAuth 2.0 Client Secret from Google Cloud Console                                                                                           |
+   | `CALLBACK_API_BASE_URL`      | Public HTTPS hostname of your deployment (defaults to `http://host.docker.internal:8080` — must be overridden in all non-local deployments) |
+
+   See [Google OAuth](../configuration/codemie/api-configuration.md#google-oauth) in the API Configuration guide for the full Google Cloud Console setup steps. See also [Add and Index Google Data Source](../../user-guide/data-source/datasources-types/add-google-data-source.md) for datasource setup instructions.
+
+   :::warning Action required
+   Existing Google Docs datasources that relied on the service account sharing approach will need to be updated.
+   :::
+
+2. **Code Executor is disabled by default** — set `CODE_EXECUTOR_ENABLED=true` to opt in; while disabled, the tool is neither listed in the tools catalog nor executed.
+3. **`AUTHORIZED_APPS_ALLOWED_KEY_DOMAINS` required for Authorized Applications** — set it to the list of domains allowed to host `public_key_url` keys before relying on your Authorized Applications configuration. Requests referencing a `public_key_url` on a domain not in the allowlist are rejected.
+
+<h3>Other Improvements</h3>
+
+This release also delivers a set of security and hardening improvements across the CodeMie platform.
+
+- Removed the local mode of Code Executor; the sandboxed Code Executor tool is now disabled by default and must be explicitly enabled via `CODE_EXECUTOR_ENABLED`.
+- Hardened Authorized Applications by validating `public_key_url` domains against an explicit allowlist (`AUTHORIZED_APPS_ALLOWED_KEY_DOMAINS`).
+
+</details>
+
+### CodeMie 2.37.0 {#v2-37-0}
+
+<details>
+<summary>Release details</summary>
+
+**Release Date:** July 2, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.37.0)
+
+<h3>Third-Party Component Updates</h3>
+
+No third-party component updates in this release.
+
+<h3>Configuration Changes</h3>
+
+No breaking configuration changes were introduced in this release.
+
+<h3>Other Improvements</h3>
+
+This release also delivers a set of security and hardening improvements across the CodeMie platform, its infrastructure, and supporting services.
+
+<h4>Code Execution &amp; Tooling Security</h4>
+
+- Deprecated the legacy Python tool in favor of the sandboxed CodeExecutor tool.
+- Hardened the Code Executor by closing security-policy and threshold bypass paths and strengthening execution isolation.
+- Reduced arbitrary code-execution risk in MCP server configuration and added corresponding security validation.
+- Mitigated remote code-execution risks in workspace script execution and MCP tools.
+- Hardened the internal MCP-Connect service bridge.
+
+<h4>Authentication, Authorization &amp; Access Control</h4>
+
+- Revised legacy header-based authentication logic and removed an redundant authentication header.
+- Reviewed AWS IAM trust policies for service accounts and hardened cloud IAM configurations, including role-chaining and access-scope reductions.
+
+<h4>Platform &amp; Dependency Maintenance</h4>
+
+- Upgraded multiple platform components and dependencies (logging, search, networking, storage drivers, and security sensors) to address known CVEs, including a kernel-level fix.
+- Reviewed and reduced exposure of internal code-execution endpoints.
+
+<h4>AWS Infrastructure</h4>
+
+- Reviewed and tightened cluster API access, IMDS access, and authentication tokens.
+- Improved project configuration security, enabled default fault-tolerance and monitoring for the managed database, and enabled versioning for user-data storage.
+- Disabled EKS Auto Mode IAM policy for cluster role.
+- Revised IAM policies permissions and improved observability and encryption for the EKS cluster.
+- Enabled reuse of an existing VPC / subnets and enabled enforcement of network policies for the VPC CNI.
+- Removed EKS SSH key pair creation and usage.
+
+<h3>Hotfixes</h3>
+
+- **2.37.1** · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.37.1) – July 2, 2026
+
+</details>
+
+### CodeMie 2.36.0 {#v2-36-0}
+
+<details>
+<summary>Release details</summary>
+
+**Release Date:** June 26, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.36.0)
+
+<h3>Third-Party Component Updates</h3>
+
+No third-party component updates in this release.
+
+<h3>Configuration Changes</h3>
+
+1. **AWS Terraform changes**
+   - **IMDS hop limit reduced to 1** — prevents containers from accessing the instance metadata service.
+   - **S3 user data bucket versioning enabled** — the user data S3 bucket now has versioning enabled, protecting against accidental deletion and overwrites. Noncurrent object versions are automatically expired after 365 days.
+   - **`AmazonBedrockFullAccess` replaced with a custom IAM policy** — the broad AWS-managed policy is replaced with a least-privilege custom policy scoped to Anthropic, Amazon Titan, Qwen, and Moonshot AI models, including cross-region inference profiles for all supported prefixes (`us`, `eu`, `ap`, `global`, `jp`, `au`).
+
+<h3>Hotfixes</h3>
+
+- **2.36.1** · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.36.1) – June 29, 2026
+
+</details>
+
+### CodeMie 2.35.0 {#v2-35-0}
+
+<details>
+<summary>Release details</summary>
+
+**Release Date:** June 22, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.35.0)
+
+<h3>Third-Party Component Updates</h3>
+
+No third-party component updates in this release.
+
+<h3>Configuration Changes</h3>
+
+1. **`security.processAuthSecret` removed from AI/Run CodeMie Backend Helm chart** — the static shared-secret approach for inter-process authentication (`INTERNAL_BIND_KEY`) has been replaced with per-request HMAC signing. The key is now generated in-memory at pod startup and no Kubernetes Secret is needed.
+
+   :::tip Configuration housekeeping
+   If the **AI/Run CodeMie Backend** Helm chart values still contain `security.processAuthSecret`, it can be safely removed:
+
+   ```yaml
+   # Remove the following block from your custom Helm values:
+   security:
+     processAuthSecret:
+       create: false
+       name: "internal-bind-key"
+       field: "bind-key"
+   ```
+
+   If you created a Kubernetes Secret for `INTERNAL_BIND_KEY` manually (e.g. for ArgoRollout deployments), it can also be safely deleted.
+   :::
+
+2. **MCP Connect Service isolated to a dedicated Kubernetes namespace** — `codemie-mcp-connect-service` is now deployed in its own `codemie-mcp-connect-service` namespace with Pod Security Admission (`restricted`) enforced. This improves workload isolation and aligns with security best practices.
+
+   :::tip Script deployments
+   The provided deployment script handles namespace creation, Pod Security Admission labeling, and service deployment automatically. No manual action is required.
+   :::
+
+   :::note Manual migration (without deployment script)
+   To apply the same isolation manually:
+   1. Create the namespace and apply Pod Security Admission labels:
+
+      ```bash
+      kubectl create namespace codemie-mcp-connect-service
+      kubectl label namespace codemie-mcp-connect-service \
+        pod-security.kubernetes.io/enforce=restricted \
+        pod-security.kubernetes.io/enforce-version=latest \
+        --overwrite
+      ```
+
+   2. Redeploy the Helm chart into the new namespace and update `MCP_CONNECT_URL` in the **AI/Run CodeMie Backend** Helm values:
+
+      ```yaml
+      - name: MCP_CONNECT_URL
+        value: "http://codemie-mcp-connect-service-{MCP_CONNECT_BUCKET}.codemie-mcp-connect-service-headless.codemie-mcp-connect-service:3000"
+      ```
+
+   3. Delete the old deployment from the `codemie` namespace.
+      :::
+
+   :::tip Network isolation hardening
+   Applying Kubernetes `NetworkPolicy` to the `codemie-mcp-connect-service` namespace is
+   recommended to enforce least-privilege traffic controls. See
+   [Network Policies for MCP Connect Service](../security/network-policies/mcp-connect-service.mdx) for
+   cloud-specific configurations and helper scripts.
+   :::
+
+3. **AWS Terraform changes**
+   - **KMS hardening** — replaced the account-root `kms:*` wildcard with least-privilege policies. Key administrators now have management permissions only, and the IRSA role has cryptographic operations only. The KMS IAM policy scope is narrowed to the specific key. Review KMS-dependent workloads for access regressions after upgrading.
+   - **Multi-AZ enabled by default for all RDS instances** — all RDS instances (main CodeMie, Keycloak, LiteLLM, Langfuse) now run with a standby replica in a secondary Availability Zone, providing automatic failover in case of an AZ outage. The change is applied during the next scheduled RDS maintenance window.
+   - **Network Policy enforcement enabled for the AWS VPC CNI addon.**
+
+</details>
+
+### CodeMie 2.34.0 {#v2-34-0}
+
+<details>
+<summary>Release details</summary>
+
+**Release Date:** June 15, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.34.0)
+
+<h3>Third-Party Component Updates</h3>
+
+No third-party component updates in this release.
+
+<h3>Configuration Changes</h3>
+
+1. External Secrets Operator IRSA provisioning removed from AWS Terraform code.
+
+2. SSH key pair module and its usage in the EKS cluster configuration removed from AWS Terraform code.
+
+3. Fluent-bit version upgrade from 4.2.3.1 to 5.0.7.
+
+4. Spot node group (`worker_group_spot`) removed from AWS EKS Terraform configuration — the Auto Scaling Group was permanently scaled to zero. Associated IAM role, instance profile, and launch template are destroyed on the next `terraform apply`.
+
+</details>
+
+### CodeMie 2.33.0 {#v2-33-0}
+
+<details>
+<summary>Release details</summary>
+
+**Release Date:** June 9, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.33.0)
+
+<h3>Third-Party Component Updates</h3>
+
+No third-party component updates in this release.
+
+<h3>Configuration Changes</h3>
+
+No breaking configuration changes were introduced in this release.
+
+</details>
+
+### CodeMie 2.32.0 {#v2-32-0}
+
+<details>
+<summary>Release details</summary>
+
+**Release Date:** June 4, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.32.0)
+
+<h3>Third-Party Component Updates</h3>
+
+No third-party component updates in this release.
+
+<h3>Configuration Changes</h3>
+
+1. AWS EKS authentication via ConfigMap no longer supported and removed from terraform scripts.
+
+2. Added optional provisioning AWS Valkey (Redis Cache).
+
+   :::tip Redis usage
+   Redis instance is required to enable functionality such as WebHook rate limiter.
+   :::
+
+</details>
+
+### CodeMie 2.31.0 {#v2-31-0}
+
+<details>
+<summary>Release details</summary>
+
+**Release Date:** June 1, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.31.0)
+
+<h3>Third-Party Component Updates</h3>
+
+No third-party component updates in this release.
+
+<h3>Configuration Changes</h3>
+
+No breaking configuration changes were introduced in this release.
+
+</details>
+
+### CodeMie 2.30.0 {#v2-30-0}
+
+<details>
+<summary>Release details</summary>
+
+**Release Date:** May 27, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.30.0)
+
+<h3>Third-Party Component Updates</h3>
+
+<h4>Keycloak Operator 1.34.0</h4>
+
+keycloak-operator has been updated from 1.32.0 to 1.34.0 (Helm chart 1.32.0 to 1.34.0). For details, see the [keycloak-operator 1.34.0 Release Notes ↗](https://github.com/epam/edp-keycloak-operator/releases/tag/v1.34.0).
+
+Starting from v1.33.0, keycloak-operator no longer auto-appends the `/auth` context path. If your Keycloak is deployed with a context path (e.g. `/auth`), include it explicitly in `keycloak.url` in your `oauth2-proxy` Helm chart values (e.g. `http://keycloakx-http/auth`). If Keycloak runs without a context path, leave the URL as-is.
+
+<h3>Configuration Changes</h3>
+
+1. **`opsPool` removed from AI/Run CodeMie Backend Helm chart** - this workload was deprecated and is no longer supported. Remove all `opsPool.*` fields from the custom Helm values before upgrading.
+
+   :::tip Configuration housekeeping
+   If the **AI/Run CodeMie Backend** Helm chart values still contain `opsPool`, it can be safely removed.
+   :::
+
+<h3>Hotfixes</h3>
+
+- **2.30.1** · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.30.1) – May 29, 2026
+
+</details>
+
+### CodeMie 2.29.0 {#v2-29-0}
+
+<details>
+<summary>Release details</summary>
 
 **Release Date:** May 22, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.29.0)
 
@@ -38,10 +374,16 @@ No third-party component updates in this release.
    nginx.ingress.kubernetes.io/auth-url: http://oauth2-proxy.oauth2-proxy.svc.cluster.local:80/oauth2/auth
    ```
 
+<h3>Hotfixes</h3>
+
+- **2.29.1** · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.29.1) – May 25, 2026
+
 </details>
 
+### CodeMie 2.28.0 {#v2-28-0}
+
 <details>
-<summary><strong>CodeMie 2.28.0</strong></summary>
+<summary>Release details</summary>
 
 **Release Date:** May 21, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.28.0)
 
@@ -78,8 +420,10 @@ No third-party component updates in this release.
 
 </details>
 
+### CodeMie 2.27.0 {#v2-27-0}
+
 <details>
-<summary><strong>CodeMie 2.27.0</strong></summary>
+<summary>Release details</summary>
 
 **Release Date:** May 18, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.27.0)
 
@@ -133,8 +477,10 @@ No third-party component updates in this release.
 
 </details>
 
+### CodeMie 2.26.0 {#v2-26-0}
+
 <details>
-<summary><strong>CodeMie 2.26.0</strong></summary>
+<summary>Release details</summary>
 
 **Release Date:** May 12, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.26.0)
 
@@ -165,8 +511,10 @@ No third-party component updates in this release.
 
 </details>
 
+### CodeMie 2.25.0 {#v2-25-0}
+
 <details>
-<summary><strong>CodeMie 2.25.0</strong></summary>
+<summary>Release details</summary>
 
 **Release Date:** May 8, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.25.0)
 
@@ -188,8 +536,10 @@ Version 2.25.0 contains a known issue that causes instability in environments wi
 
 </details>
 
+### CodeMie 2.24.0 {#v2-24-0}
+
 <details>
-<summary><strong>CodeMie 2.24.0</strong></summary>
+<summary>Release details</summary>
 
 **Release Date:** April 23, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.24.0)
 
@@ -250,7 +600,7 @@ Updated from 1.81.0. For details, see the [LiteLLM 1.83.7 Release Notes ↗](htt
    Set `INTERNAL_BIND_KEY` to the same strong random value across all workers and pods.
    Generate with: `openssl rand -hex 32`. Store in a secrets manager or Kubernetes Secret.
 
-   See [API Configuration](../configuration/codemie/api-configuration.md#inter-process-communication) for full details.
+   See [API Configuration](../configuration/codemie/api-configuration.md) for full details.
 
 <h3>Hotfixes</h3>
 
@@ -260,8 +610,10 @@ Updated from 1.81.0. For details, see the [LiteLLM 1.83.7 Release Notes ↗](htt
 
 </details>
 
+### CodeMie 2.23.0 {#v2-23-0}
+
 <details>
-<summary><strong>CodeMie 2.23.0</strong></summary>
+<summary>Release details</summary>
 
 **Release Date:** April 15, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.23.0)
 
@@ -307,8 +659,10 @@ See [Budget Configuration](../configuration/extensions/litellm-proxy/budget-conf
 
 </details>
 
+### CodeMie 2.22.0 {#v2-22-0}
+
 <details>
-<summary><strong>CodeMie 2.22.0</strong></summary>
+<summary>Release details</summary>
 
 **Release Date:** April 9, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.22.0)
 
@@ -326,8 +680,10 @@ No breaking configuration changes were introduced in this release.
 
 </details>
 
+### CodeMie 2.21.0 {#v2-21-0}
+
 <details>
-<summary><strong>CodeMie 2.21.0</strong></summary>
+<summary>Release details</summary>
 
 **Release Date:** April 8, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.21.0)
 
@@ -345,8 +701,10 @@ No breaking configuration changes were introduced in this release.
 
 </details>
 
+### CodeMie 2.20.0 {#v2-20-0}
+
 <details>
-<summary><strong>CodeMie 2.20.0</strong></summary>
+<summary>Release details</summary>
 
 **Release Date:** April 2, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.20.0)
 
@@ -388,8 +746,10 @@ No breaking configuration changes were introduced in this release.
 
 </details>
 
+### CodeMie 2.19.0 {#v2-19-0}
+
 <details>
-<summary><strong>CodeMie 2.19.0</strong></summary>
+<summary>Release details</summary>
 
 **Release Date:** March 27, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.19.0)
 
@@ -414,8 +774,10 @@ No breaking configuration changes were introduced in this release.
 
 </details>
 
+### CodeMie 2.18.0 {#v2-18-0}
+
 <details>
-<summary><strong>CodeMie 2.18.0</strong></summary>
+<summary>Release details</summary>
 
 **Release Date:** March 24, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.18.0)
 
@@ -429,8 +791,10 @@ No breaking configuration changes were introduced in this release.
 
 </details>
 
+### CodeMie 2.17.0 {#v2-17-0}
+
 <details>
-<summary><strong>CodeMie 2.17.0</strong></summary>
+<summary>Release details</summary>
 
 **Release Date:** March 20, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.17.0)
 
@@ -444,8 +808,10 @@ No breaking configuration changes were introduced in this release.
 
 </details>
 
+### CodeMie 2.16.0 {#v2-16-0}
+
 <details>
-<summary><strong>CodeMie 2.16.0</strong></summary>
+<summary>Release details</summary>
 
 **Release Date:** March 18, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.16.0)
 
@@ -459,8 +825,10 @@ No breaking configuration changes were introduced in this release.
 
 </details>
 
+### CodeMie 2.15.0 {#v2-15-0}
+
 <details>
-<summary><strong>CodeMie 2.15.0</strong></summary>
+<summary>Release details</summary>
 
 **Release Date:** March 16, 2026 · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.15.0)
 
