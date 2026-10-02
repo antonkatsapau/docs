@@ -13,6 +13,25 @@ This page provides information about updated third-party components and configur
 
 ---
 
+### CodeMie 2.55.0 {#v2-55-0}
+
+<details>
+<summary>Release details</summary>
+
+**Release Date:** To be announced · [GitHub Tag ↗](https://github.com/codemie-ai/codemie/releases/tag/2.55.0)
+
+<h3>Third-Party Component Updates</h3>
+
+No third-party component updates in this release.
+
+<h3>Configuration Changes</h3>
+
+- **White-label theming kit version 1.** This release is paired with white-label kit version 1, which adds the `brand` values to the `codemie-ui` chart and the brand links overlay to the API. For details, see [White-Label Theming Kit](../configuration/white-label/index.md).
+
+No breaking configuration changes were introduced in this release.
+
+</details>
+
 ### CodeMie 2.54.0 {#v2-54-0}
 
 <details>
