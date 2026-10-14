@@ -320,6 +320,16 @@ Each model entry in the `model_list` array consists of three main sections:
 
   </details>
 
+- **`switchyard`**: (Optional) List of Switchyard auto-routing router declarations for this
+  model. Only meaningful on a capable model's entry. See
+  [Switchyard Auto-Routing](../../codemie/ai-models-integration/switchyard-model-routing.md)
+  for the field schema and a worked example.
+- **`litellm_router`**: (Optional) Declares that this `model_name` is itself a LiteLLM native
+  auto-router rather than a concrete deployment — required for CodeMie to recognize it as
+  such and avoid treating it as a normal deployable model. See
+  [LiteLLM Native Auto-Routing](../../codemie/ai-models-integration/litellm-native-auto-routing.md)
+  for the field schema and a worked example.
+
 ## Model Configuration Examples
 
 This guide provides tested and verified model configurations currently used in AI/Run CodeMie production. While not all steps for adding new models are covered (refer to the [official LiteLLM documentation](https://docs.litellm.ai/) for comprehensive setup instructions), working examples from the production environment are shared and can be adapted for any deployment.
@@ -348,6 +358,7 @@ Configuration examples for these models can be found in the provider-specific se
 | [`claude-opus-4-8`](#claude-opus-48)            | Claude Opus 4.8                |
 | [`claude-opus-5-5`](#claude-opus-55)            | Claude Opus 5.5                |
 | [`claude-haiku-4-5-20251001`](#claude-haiku-45) | Claude Haiku 4.5               |
+| [`claude-haiku-5-5`](#claude-haiku-55)          | Claude Haiku 5.5               |
 | [`amazon.titan-embed-text-v2:0`](#amazon-titan) | Amazon Titan Embeddings        |
 | [`grok-4.6`](#grok-46)                          | Grok 4.6                       |
 | [`moonshotai.kimi-k3`](#moonshotai-kimi-k3)     | MoonshotAI Kimi K3             |
@@ -396,6 +407,7 @@ Configuration examples for these models can be found in the provider-specific se
 | [`gemini-3-flash`](#gemini-3-flash)                | Gemini 3 Flash                         |
 | [`gemini-3.1-pro`](#gemini-31-pro)                 | Gemini 3.1 Pro                         |
 | [`gemini-3.1-flash-image`](#gemini-31-flash-image) | Gemini 3.1 Flash Image (Nano Banana 2) |
+| [`gemini-nano-banana-2.1`](#gemini-nano-banana-21) | Gemini Nano Banana 2.1                 |
 | [`gemini-3.5-flash`](#gemini-35-flash)             | Gemini 3.5 Flash                       |
 | [`gemini-3.6-flash`](#gemini-36-flash)             | Gemini 3.6 Flash                       |
 | [`gemini-3.7-flash`](#gemini-37-flash)             | Gemini 3.7 Flash                       |
@@ -615,7 +627,7 @@ See the [AWS data retention requirement](#claude-fable) above — it applies to 
 # US Region
 - model_name: claude-haiku-4-5-20251001
   litellm_params:
-    model: bedrock/converse/us.anthropic.claude-haiku-4-5-20251001-v1:0
+    model: bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0
     litellm_credential_name: default_aws_bedrock_credential
     aws_region_name: us-west-2
   model_info:
@@ -626,13 +638,33 @@ See the [AWS data retention requirement](#claude-fable) above — it applies to 
 # EU Region
 - model_name: claude-haiku-4-5-20251001
   litellm_params:
-    model: bedrock/converse/eu.anthropic.claude-haiku-4-5-20251001-v1:0
+    model: bedrock/eu.anthropic.claude-haiku-4-5-20251001-v1:0
     litellm_credential_name: default_aws_bedrock_credential
     aws_region_name: eu-central-1
   model_info:
     id: claude-4-5-haiku-eu-central-1
     base_model: eu.anthropic.claude-haiku-4-5-20251001-v1:0
     label: "Bedrock Claude Haiku 4.5"
+```
+
+</details>
+
+#### Claude Haiku 5.5
+
+<details>
+<summary><strong>Claude Haiku 5.5</strong></summary>
+
+```yaml
+# EU Region
+- model_name: claude-haiku-5-5
+  litellm_params:
+    model: bedrock/eu.anthropic.claude-haiku-5-5
+    litellm_credential_name: default_aws_bedrock_credential
+    aws_region_name: eu-central-1
+  model_info:
+    id: claude-haiku-5-5-eu-central-1
+    base_model: eu.anthropic.claude-haiku-5-5
+    label: "Bedrock Claude Haiku 5.5"
 ```
 
 </details>
@@ -882,7 +914,7 @@ GPT models hosted through Amazon Bedrock's Mantle offering use the `bedrock_mant
     aws_region_name: us-east-1
     aws_bedrock_project_id: os.environ/BEDROCK_MANTLE_PROJECT_ID_US_EAST-1
     // highlight-next-line
-    additional_drop_params: ["user"]
+    additional_drop_params: ["user", "top_p"]
   model_info:
     id: gpt-5.5-us-east-1
     base_model: bedrock_mantle/openai.gpt-5.5
@@ -905,7 +937,7 @@ GPT models hosted through Amazon Bedrock's Mantle offering use the `bedrock_mant
     aws_region_name: us-east-1
     aws_bedrock_project_id: os.environ/BEDROCK_MANTLE_PROJECT_ID_US_EAST-1
     // highlight-next-line
-    additional_drop_params: ["user"]
+    additional_drop_params: ["user", "top_p"]
   model_info:
     id: gpt-5.6-luna-2026-07-09-us-east-1
     base_model: bedrock_mantle/openai.gpt-5.6-luna
@@ -951,7 +983,7 @@ GPT models hosted through Amazon Bedrock's Mantle offering use the `bedrock_mant
     aws_region_name: us-east-1
     aws_bedrock_project_id: os.environ/BEDROCK_MANTLE_PROJECT_ID_US_EAST-1
     // highlight-next-line
-    additional_drop_params: ["user"]
+    additional_drop_params: ["user", "top_p"]
   model_info:
     id: gpt-5.6-terra-2026-07-09-us-east-1
     base_model: bedrock_mantle/openai.gpt-5.6-terra
@@ -1763,6 +1795,26 @@ The `litellm_settings` approach is recommended when all Gemini models share the 
     id: gemini-3.1-flash-image-global
     base_model: gemini-3.1-flash-image
     label: "Gemini 3.1 Flash Image"
+    forbidden_for_web: true
+    supports_image_generation: true
+```
+
+</details>
+
+#### Gemini Nano Banana 2.1
+
+<details>
+<summary><strong>Gemini Nano Banana 2.1</strong></summary>
+
+```yaml
+- model_name: gemini-nano-banana-2.1
+  litellm_params:
+    model: vertex_ai/gemini-nano-banana-2.1
+    vertex_location: "global"
+  model_info:
+    id: gemini-nano-banana-2.1-global
+    base_model: vertex_ai/gemini-nano-banana-2.1
+    label: "Gemini Nano Banana 2.1"
     forbidden_for_web: true
     supports_image_generation: true
 ```
