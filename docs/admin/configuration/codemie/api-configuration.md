@@ -245,12 +245,17 @@ Primary relational database for structured data and transactional operations.
 
 Document store for full-text search, analytics, and unstructured data.
 
-| Parameter                     | Type    | Default                   | Description                                                                                                                                                                          |
-| ----------------------------- | ------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `ELASTIC_URL`                 | string  | `"http://localhost:9200"` | Elasticsearch cluster endpoint URL                                                                                                                                                   |
-| `ELASTIC_PASSWORD`            | string  | `""`                      | Password for `elastic` user or configured username                                                                                                                                   |
-| `ELASTIC_USERNAME`            | string  | `""`                      | Username for Elasticsearch authentication                                                                                                                                            |
-| `ELASTIC_DATASOURCE_REPLICAS` | integer | `1`                       | Number of replica shards for datasource indexes; set to `0` to have only the primary shard for each indexed datasource, reducing total shard usage on clusters with limited capacity |
+| Parameter                     | Type                             | Default                   | Description                                                                                                                                                                                                                                                                                                       |
+| ----------------------------- | -------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ELASTIC_URL`                 | string                           | `"http://localhost:9200"` | Elasticsearch cluster endpoint URL                                                                                                                                                                                                                                                                                |
+| `ELASTIC_PASSWORD`            | string                           | `""`                      | Password for `elastic` user or configured username                                                                                                                                                                                                                                                                |
+| `ELASTIC_USERNAME`            | string                           | `""`                      | Username for Elasticsearch authentication                                                                                                                                                                                                                                                                         |
+| `ELASTIC_DATASOURCE_REPLICAS` | integer                          | `1`                       | Number of replica shards for datasource indexes; set to `0` to have only the primary shard for each indexed datasource, reducing total shard usage on clusters with limited capacity                                                                                                                              |
+| `RETRIEVAL_BACKEND`           | string (`elasticsearch`, `none`) | `"elasticsearch"`         | Selects the retrieval backend. Set to `none` to run without Elasticsearch — Knowledge Bases, Data Sources, and code indexing are disabled; the admin log lookup endpoint is unaffected by this setting but relies on the same Elasticsearch connection, so also set `ADMIN_LOG_LOOKUP_ENABLED=false` in that case |
+
+:::info Standalone deployments
+The [CodeMie Standalone](../../../user-guide/standalone/index.md) image sets `RETRIEVAL_BACKEND=none` by default, since it does not include an Elasticsearch container.
+:::
 
 #### Elasticsearch Indexes
 
@@ -448,6 +453,24 @@ database on startup.
 | `KEYCLOAK_MIGRATION_BATCH_SIZE`            | integer | `100`   | Number of Keycloak users fetched per paginated API call; smaller values reduce memory pressure during large migrations.                          |
 | `KEYCLOAK_MIGRATION_LOCK_TIMEOUT_MINUTES`  | integer | `30`    | Age threshold after which a migration lock held by another pod is considered stale and may be taken over; prevents deadlocks when a pod crashes. |
 | `KEYCLOAK_MIGRATION_WAIT_INTERVAL_SECONDS` | integer | `5`     | How long a follower pod sleeps between polls while waiting for the leader pod to finish the migration.                                           |
+
+---
+
+### Keycloak Enterprise Settings
+
+<EnterpriseFeature />
+
+Enterprise-only settings for deployments where an upstream OAuth2/OIDC reverse proxy (such as oauth2-proxy or envoy) authenticates requests and injects user context via HTTP headers and cookies before they reach the application.
+
+:::note
+Setting `AUTHORIZATION_HEADER` to `Authorization` is supported — the Bearer scheme is correctly recognized and stripped when this header name is used.
+:::
+
+| Parameter              | Type   | Default                         | Description                                                                                                                                      |
+| ---------------------- | ------ | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `AUTHORIZATION_HEADER` | string | `"x-auth-request-access-token"` | Name of the HTTP header from which the application reads the inbound JWT access token injected by the upstream OAuth2/OIDC reverse proxy         |
+| `SESSION_COOKIE`       | string | `"oidc_session"`                | Name of the cookie holding the OIDC session established by the upstream proxy; used to associate requests with an authenticated session          |
+| `USER_INFO_HEADER`     | string | `"x-userinfo"`                  | Name of the HTTP header carrying base64-encoded user claims in JWT format, injected by the upstream proxy to convey user identity and attributes |
 
 ---
 
@@ -1089,6 +1112,10 @@ For authoring instructions, see [Sub-workflows](../../../user-guide/workflows/su
 
 Enable time-based or event-driven workflow automation.
 
+:::warning
+`TRIGGER_ENGINE_ENABLED` must be set to `true` for the [Schedulers](../../../../user-guide/schedulers/) feature to work. When it is `false` (default), schedulers can still be created in the UI, but they never run.
+:::
+
 | Parameter                     | Type    | Default | Description                                     |
 | ----------------------------- | ------- | ------- | ----------------------------------------------- |
 | `TRIGGER_ENGINE_ENABLED`      | boolean | `false` | Enable scheduled workflows and event triggers   |
@@ -1115,6 +1142,12 @@ Automatically select relevant tools based on user queries to improve response qu
 | `TOOL_SELECTION_ENABLED`   | boolean | `false` | Enable AI-powered tool selection from available toolkits       |
 | `TOOL_SELECTION_THRESHOLD` | integer | `3`     | Min tools before triggering smart selection (use all if below) |
 | `TOOL_SELECTION_LIMIT`     | integer | `3`     | Max tools to select per query to optimize token usage          |
+
+### Admin Log Lookup
+
+| Parameter                  | Type    | Default | Description                                                                                                                                                                                          |
+| -------------------------- | ------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ADMIN_LOG_LOOKUP_ENABLED` | boolean | `true`  | Enables the admin log lookup endpoint, which queries Elasticsearch. Set to `false` for deployments running with `RETRIEVAL_BACKEND=none` (no Elasticsearch), otherwise the endpoint returns HTTP 503 |
 
 ### Code Analysis Services
 
@@ -1352,17 +1385,27 @@ Nightly background job that identifies datasources with no recent usage or updat
 
 <EnterpriseFeature />
 
-Read API for per-session coding-agent cost, tooling, repository, and efficiency analytics, backed by ClickHouse. Enable the feature through `features:cliAnalytics` in `customer-config.yaml` — see [Customer Feature Configuration](./customer-feature-configuration.md#advanced-features).
+Read API for per-session coding-agent cost, tooling, repository, and efficiency analytics, backed by PostgreSQL. The backend ingests OTLP and event-hook payloads directly without requiring an OpenTelemetry Collector, and stores data in PostgreSQL (`codemie_analytics` schema). Enable the feature through `features:cliAnalytics` in `customer-config.yaml` -- see [Customer Feature Configuration](./customer-feature-configuration.md#advanced-features).
 
-| Parameter                             | Type    | Default                 | Description                                                                                                                                                                        |
-| ------------------------------------- | ------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `CLICKHOUSE_HOST`                     | string  | `"localhost"`           | ClickHouse HTTP host used by the analytics read API                                                                                                                                |
-| `CLICKHOUSE_PORT`                     | integer | `8123`                  | ClickHouse HTTP port                                                                                                                                                               |
-| `CLICKHOUSE_USER`                     | string  | `"default"`             | ClickHouse user for the analytics read API                                                                                                                                         |
-| `CLICKHOUSE_PASSWORD`                 | string  | `""`                    | ClickHouse password for the analytics read API                                                                                                                                     |
-| `CLICKHOUSE_QUERY_TIMEOUT_SECONDS`    | integer | `30`                    | Timeout for ClickHouse queries issued by the analytics read API                                                                                                                    |
-| `ANALYTICS_INGEST_OTLP_HTTP_ENDPOINT` | string  | `"http://otelcol:4318"` | OTLP HTTP endpoint the backend forwards incoming analytics payloads to; override with the host-mapped port (e.g. `http://localhost:14318`) when running outside the Docker network |
-| `ANALYTICS_INGEST_MAX_BODY_BYTES`     | integer | `5242880`               | Maximum accepted request body size, in bytes, for analytics ingest endpoints                                                                                                       |
+| Parameter                                      | Type    | Default               | Description                                                                                                                         |
+| ---------------------------------------------- | ------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `ANALYTICS_INGEST_MAX_BODY_BYTES`              | integer | `5242880`             | Maximum accepted request body size, in bytes, for analytics ingest endpoints (5 MiB)                                                |
+| `CLI_ANALYTICS_PG_URL`                         | string  | `""`                  | Dedicated PostgreSQL connection URL for CLI analytics; when empty, falls back to the application database (`PG_URL` / `POSTGRES_*`) |
+| `CLI_ANALYTICS_PG_SCHEMA`                      | string  | `"codemie_analytics"` | PostgreSQL schema used for analytics tables                                                                                         |
+| `CLI_ANALYTICS_PG_POOL_SIZE`                   | integer | `8`                   | Dedicated connection pool size for analytics                                                                                        |
+| `CLI_ANALYTICS_PG_STATEMENT_TIMEOUT_MS`        | integer | `30000`               | Statement timeout in milliseconds for analytics dashboard read queries                                                              |
+| `CLI_ANALYTICS_PG_WORK_MEM`                    | string  | `"32MB"`              | PostgreSQL work_mem per analytics session                                                                                           |
+| `CLI_ANALYTICS_PG_INGEST_ACQUIRE_TIMEOUT_MS`   | integer | `1000`                | Connection pool acquire timeout in milliseconds for ingest requests                                                                 |
+| `CLI_ANALYTICS_PG_INGEST_STATEMENT_TIMEOUT_MS` | integer | `10000`               | Statement timeout in milliseconds for ingest transactions                                                                           |
+| `CLI_ANALYTICS_RAW_RETENTION_DAYS`             | integer | `90`                  | Retention period in days for raw telemetry records                                                                                  |
+| `CLI_ANALYTICS_ROLLUP_RETENTION_DAYS`          | integer | `365`                 | Retention period in days for daily and hourly rollups                                                                               |
+| `CLI_ANALYTICS_SESSION_RETENTION_DAYS`         | integer | `0`                   | Retention period in days for whole sessions in session tables; `0` disables session purging                                         |
+| `CLI_ANALYTICS_SESSION_PURGE_BATCH_SIZE`       | integer | `5000`                | Maximum number of idle sessions one session purge statement deletes; a statement also stops at 100,000 child rows                   |
+| `CLI_ANALYTICS_DEDUP_RETENTION_DAYS`           | integer | `14`                  | Retention period in days for duplicate record tracking                                                                              |
+| `CLI_ANALYTICS_ROLLUP_REFRESH_SECONDS`         | integer | `30`                  | Refresh interval in seconds for background rollup calculation                                                                       |
+| `CLI_ANALYTICS_ROLLUP_BATCH_SIZE`              | integer | `5000`                | Number of keys recomputed per transaction during rollup refresh                                                                     |
+| `CLI_ANALYTICS_PARTITION_PREMAKE_WEEKS`        | integer | `4`                   | Number of weeks ahead to premake table partitions                                                                                   |
+| `CLI_ANALYTICS_MAINTENANCE_INTERVAL_MINUTES`   | integer | `60`                  | Interval in minutes between maintenance tasks (partition creation, retention cleanup)                                               |
 
 ---
 
@@ -1512,3 +1555,4 @@ AUTHORIZED_APPS_ALLOWED_KEY_DOMAINS=["trusted.example","keys.trusted.example"]
 
 - [Kubernetes Deployment](../../deployment/infrastructure-deployment/kubernetes.mdx) - Complete Kubernetes deployment walkthrough for AWS, Azure, and GCP
 - [On-VM Deployment](../../deployment/infrastructure-deployment/on-vm.mdx) - EC2, Azure VM, or Compute Engine deployment with Docker Compose
+- [Running CodeMie Standalone](../../../user-guide/standalone/run-guide.md) - Single-image setup without Elasticsearch or Keycloak
