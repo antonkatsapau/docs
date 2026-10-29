@@ -384,7 +384,11 @@ const sidebars: SidebarsConfig = {
             id: 'user-guide/api/index',
           },
           collapsed: true,
-          items: ['user-guide/api/client-secret-access', 'user-guide/api/user-password-access'],
+          items: [
+            'user-guide/api/client-secret-access',
+            'user-guide/api/user-password-access',
+            'user-guide/api/settings-transfer',
+          ],
         },
         {
           type: 'category',
@@ -657,6 +661,7 @@ const sidebars: SidebarsConfig = {
                 'admin/configuration/codemie/api-configuration',
                 'admin/configuration/codemie/platform-administration',
                 'admin/configuration/codemie/project-budget-management',
+                'admin/configuration/codemie/servicenow-budget-integration',
               ],
             },
             {
